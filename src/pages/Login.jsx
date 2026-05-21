@@ -21,7 +21,7 @@ export default function Login() {
       login(user);
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }

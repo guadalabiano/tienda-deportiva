@@ -1,10 +1,31 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { ordenService } from '../services/ordenService';
 import CartItem from '../components/CartItem';
 
 export default function Carrito() {
   const { cartItems, clearCart, getTotalPrice, getTotalItems } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const total = getTotalPrice();
+
+  const handleCheckout = async () => {
+    if (!user) {
+      alert('Debes iniciar sesión para continuar con la compra');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      await ordenService.createOrden(cartItems);
+      alert('¡Orden creada exitosamente!');
+      clearCart();
+      navigate('/');
+    } catch (err) {
+      alert(err.message || 'Error al crear la orden');
+    }
+  };
 
   return (
     <div style={{ minHeight: '85vh', background: '#f8fafc', paddingBottom: '3rem' }}>
@@ -130,7 +151,7 @@ export default function Carrito() {
                   </div>
                 </div>
 
-                <button style={{
+                <button onClick={handleCheckout} style={{
                   width: '100%',
                   background: '#f97316',
                   color: 'white',

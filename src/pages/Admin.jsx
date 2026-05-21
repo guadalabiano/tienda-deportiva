@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useProducts } from '../context/ProductsContext';
 import { useAuth } from '../context/AuthContext';
+import { productService } from '../services/productService';
 
 export default function Admin() {
   const { user } = useAuth();
-  const { allProductos } = useProducts();
+  const { allProductos, recargarProductos } = useProducts();
+  const [loading, setLoading] = useState(false);
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: '',
     precio: '',
@@ -39,16 +41,56 @@ export default function Admin() {
     );
   }
 
-  const handleAddProduct = (e) => {
+  const handleAddProduct = async (e) => {
     e.preventDefault();
-    alert('En desarrollo: Funcionalidad de agregar productos');
-    setNuevoProducto({
-      nombre: '',
-      precio: '',
-      categoria: '',
-      descripcion: '',
-      stock: ''
-    });
+    
+    if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.categoria || !nuevoProducto.stock) {
+      alert('Por favor completa todos los campos');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await productService.createProducto({
+        nombre: nuevoProducto.nombre,
+        precio: parseFloat(nuevoProducto.precio),
+        categoria: nuevoProducto.categoria,
+        descripcion: nuevoProducto.descripcion,
+        stock: parseInt(nuevoProducto.stock)
+      });
+      
+      alert('Producto agregado exitosamente');
+      setNuevoProducto({
+        nombre: '',
+        precio: '',
+        categoria: '',
+        descripcion: '',
+        stock: ''
+      });
+      
+      await recargarProductos();
+    } catch (err) {
+      alert(err.message || 'Error al agregar el producto');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (id) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await productService.deleteProducto(id);
+      alert('Producto eliminado exitosamente');
+      await recargarProductos();
+    } catch (err) {
+      alert(err.message || 'Error al eliminar el producto');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const categorias = [
@@ -198,21 +240,22 @@ export default function Admin() {
 
             <button
               type="submit"
+              disabled={loading}
               style={{
                 gridColumn: '1 / -1',
-                background: '#16a34a',
+                background: loading ? '#cbd5e1' : '#16a34a',
                 color: 'white',
                 border: 'none',
                 padding: '12px',
                 borderRadius: '8px',
                 fontWeight: '600',
-                cursor: 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 transition: 'background 0.2s'
               }}
-              onMouseEnter={(e) => e.target.style.background = '#15803d'}
-              onMouseLeave={(e) => e.target.style.background = '#16a34a'}
+              onMouseEnter={(e) => !loading && (e.target.style.background = '#15803d')}
+              onMouseLeave={(e) => !loading && (e.target.style.background = '#16a34a')}
             >
-              Agregar Producto
+              {loading ? 'Agregando...' : 'Agregar Producto'}
             </button>
           </form>
         </div>
@@ -291,19 +334,20 @@ export default function Admin() {
                           fontWeight: '600',
                           marginRight: '1rem'
                         }}
-                        onClick={() => alert('En desarrollo: Editar producto')}
+                        onClick={() => alert('Función de editar en desarrollo')}
                       >
                         Editar
                       </button>
                       <button
+                        disabled={loading}
                         style={{
                           background: 'transparent',
                           border: 'none',
-                          color: '#dc2626',
-                          cursor: 'pointer',
+                          color: loading ? '#cbd5e1' : '#dc2626',
+                          cursor: loading ? 'not-allowed' : 'pointer',
                           fontWeight: '600'
                         }}
-                        onClick={() => alert('En desarrollo: Eliminar producto')}
+                        onClick={() => handleDeleteProduct(producto.id)}
                       >
                         Eliminar
                       </button>
