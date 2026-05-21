@@ -1,18 +1,18 @@
 import * as usuarioModel from './models/usuario.js';
 import * as productoModel from './models/producto.js';
+import db from './config/database.js';
 
 export async function seedDatabase() {
   try {
     // Verificar si ya hay datos
-    const usuarios = await new Promise((resolve, reject) => {
-      const db = (await import('./config/database.js')).default;
-      db.all('SELECT COUNT(*) as count FROM usuarios', (err, rows) => {
+    const countUsers = await new Promise((resolve, reject) => {
+      db.get('SELECT COUNT(*) as count FROM usuarios', (err, row) => {
         if (err) reject(err);
-        else resolve(rows?.[0]?.count || 0);
+        else resolve(row?.count || 0);
       });
     });
 
-    if (usuarios > 0) {
+    if (countUsers > 0) {
       console.log('Base de datos ya contiene datos, saltando seed');
       return;
     }

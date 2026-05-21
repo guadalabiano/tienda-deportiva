@@ -11,8 +11,8 @@ export async function createOrden(req, res) {
     }
 
     let total = 0;
-    const orden = await ordenModel.createOrden(usuarioId, 0);
-
+    
+    // Validar stock y calcular total primero
     for (const item of items) {
       const producto = await productModel.getProductoById(item.id);
 
@@ -24,20 +24,24 @@ export async function createOrden(req, res) {
         return res.status(400).json({ error: `Stock insuficiente para ${producto.nombre}` });
       }
 
-      const subtotal = producto.precio * item.cantidad;
-      total += subtotal;
+      total += producto.precio * item.cantidad;
+    }
 
+    // Crear orden con total
+    const orden = await ordenModel.createOrden(usuarioId, total);
+
+    // Agregar items y actualizar stock
+    for (const item of items) {
+      const producto = await productModel.getProductoById(item.id);
       await ordenModel.createOrdenItem(orden.id, item.id, item.cantidad, producto.precio);
       await productModel.updateProducto(item.id, { stock: producto.stock - item.cantidad });
     }
 
+    // Actualizar estado
     await ordenModel.updateOrdenEstado(orden.id, 'pendiente');
     const updatedOrden = await ordenModel.getOrdenById(orden.id);
 
-    res.status(201).json({
-      ...updatedOrden,
-      total
-    });
+    res.status(201).json(updatedOrden);
   } catch (error) {
     console.error('Error en createOrden:', error);
     res.status(500).json({ error: 'Error al crear orden' });

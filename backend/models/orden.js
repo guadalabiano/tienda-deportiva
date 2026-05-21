@@ -53,10 +53,24 @@ export function getOrdenByUsuario(usuarioId) {
 
 export function getOrdenById(id) {
   return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM ordenes WHERE id = ?', [id], (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
+    db.get(
+      `SELECT o.*, 
+              GROUP_CONCAT(json_object('id', oi.id, 'productoId', oi.productoId, 'cantidad', oi.cantidad, 'precio', oi.precio)) as items
+       FROM ordenes o
+       LEFT JOIN orden_items oi ON o.id = oi.ordenId
+       WHERE o.id = ?
+       GROUP BY o.id`,
+      [id],
+      (err, row) => {
+        if (err) reject(err);
+        else {
+          if (row) {
+            row.items = row.items ? JSON.parse(`[${row.items}]`) : [];
+          }
+          resolve(row);
+        }
+      }
+    );
   });
 }
 
