@@ -1,24 +1,44 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { authService } from '../services/authService';
 
 export default function Registro() {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); 
-    
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
     // Validación de contraseñas
     if (password !== confirmPassword) {
-      alert("Error: Las contraseñas no coinciden. Por favor, revisalas.");
+      setError('Las contraseñas no coinciden. Por favor, revisalas.');
       return;
     }
 
-    // Simulación de registro
-    console.log("Enviando datos al equipo:", { nombre, email, password });
-    alert("¡Cuenta creada con éxito! Ya podés iniciar sesión.");
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const user = await authService.registro(nombre, email, password);
+      login(user);
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,6 +72,19 @@ export default function Registro() {
         
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           
+          {error && (
+            <div style={{
+              background: '#fee2e2',
+              border: '1px solid #fecaca',
+              color: '#dc2626',
+              padding: '12px',
+              borderRadius: '8px',
+              fontSize: '0.9rem'
+            }}>
+              {error}
+            </div>
+          )}
+
           <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
             <label style={{ marginBottom: '6px', fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>
               Nombre Completo
@@ -62,6 +95,7 @@ export default function Registro() {
               onChange={(e) => setNombre(e.target.value)} 
               placeholder="Ej: Juan Pérez"
               required
+              disabled={loading}
               style={{ padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none' }}
             />
           </div>
@@ -76,6 +110,7 @@ export default function Registro() {
               onChange={(e) => setEmail(e.target.value)} 
               placeholder="tu@correo.com"
               required
+              disabled={loading}
               style={{ padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none' }}
             />
           </div>
@@ -90,6 +125,7 @@ export default function Registro() {
               onChange={(e) => setPassword(e.target.value)} 
               placeholder="Mínimo 6 caracteres"
               required
+              disabled={loading}
               style={{ padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none' }}
             />
           </div>
@@ -104,23 +140,25 @@ export default function Registro() {
               onChange={(e) => setConfirmPassword(e.target.value)} 
               placeholder="Repetí tu contraseña"
               required
+              disabled={loading}
               style={{ padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none' }}
             />
           </div>
 
-          <button type="submit" style={{ 
+          <button type="submit" disabled={loading} style={{ 
             marginTop: '10px', 
             padding: '14px', 
-            background: '#f97316', // Naranja deportivo
+            background: loading ? '#cbd5e1' : '#f97316',
             color: 'white', 
             border: 'none', 
             borderRadius: '8px', 
             fontSize: '1rem',
             fontWeight: 'bold',
-            cursor: 'pointer',
-            boxShadow: '0 4px 6px rgba(249, 115, 22, 0.2)'
+            cursor: loading ? 'not-allowed' : 'pointer',
+            boxShadow: '0 4px 6px rgba(249, 115, 22, 0.2)',
+            transition: 'background 0.2s'
           }}>
-            Registrarme ahora
+            {loading ? 'Registrando...' : 'Registrarme ahora'}
           </button>
 
         </form>

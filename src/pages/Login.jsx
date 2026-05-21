@@ -1,19 +1,29 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { authService } from '../services/authService';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); 
-    const usuarioFalso = "admin@tienda.com";
-    const passFalsa = "123456";
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-    if (email === usuarioFalso && password === passFalsa) {
-      alert("¡Inicio de sesión exitoso! Bienvenido.");
-    } else {
-      alert("Error: El mail o la contraseña son incorrectos.");
+    try {
+      const user = await authService.login(email, password);
+      login(user);
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,6 +56,20 @@ export default function Login() {
           </p>
         </div>
         
+        {error && (
+          <div style={{
+            background: '#fee2e2',
+            border: '1px solid #fecaca',
+            color: '#dc2626',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
@@ -58,6 +82,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)} 
               placeholder="tu@correo.com"
               required
+              disabled={loading}
               style={{ 
                 padding: '12px 15px', 
                 borderRadius: '8px', 
@@ -79,6 +104,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)} 
               placeholder="••••••••"
               required
+              disabled={loading}
               style={{ 
                 padding: '12px 15px', 
                 borderRadius: '8px', 
@@ -89,22 +115,29 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" style={{ 
+          <button type="submit" disabled={loading} style={{ 
             marginTop: '10px', 
             padding: '14px', 
-            background: '#f97316', // Naranja deportivo 
+            background: loading ? '#cbd5e1' : '#f97316',
             color: 'white', 
             border: 'none', 
             borderRadius: '8px', 
             fontSize: '1rem',
             fontWeight: 'bold',
-            cursor: 'pointer',
-            boxShadow: '0 4px 6px rgba(249, 115, 22, 0.25)'
+            cursor: loading ? 'not-allowed' : 'pointer',
+            boxShadow: '0 4px 6px rgba(249, 115, 22, 0.25)',
+            transition: 'background 0.2s'
           }}>
-            Ingresar
+            {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
 
         </form>
+
+        <div style={{ marginTop: '1rem', padding: '1rem', background: '#f1f5f9', borderRadius: '8px', fontSize: '0.85rem', color: '#475569' }}>
+          <p style={{ margin: '0 0 0.5rem 0', fontWeight: '600' }}>Credenciales demo:</p>
+          <p style={{ margin: '0.25rem 0' }}>📧 admin@tienda.com</p>
+          <p style={{ margin: '0.25rem 0' }}>🔑 123456</p>
+        </div>
 
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.9rem', color: '#64748b' }}>
           ¿No tenés cuenta?{' '}
