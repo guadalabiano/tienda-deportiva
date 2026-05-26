@@ -7,7 +7,9 @@ import Registro from './pages/Registro.jsx';
 import Home from './pages/Home.jsx';
 import Carrito from './pages/Carrito.jsx';
 import DetalleProducto from './pages/DetalleProducto.jsx';
+import { WishlistProvider } from './context/WishlistContext';
 import Admin from './pages/Admin.jsx';
+import RecuperarPassword from './pages/RecuperarPassword.jsx';
 
 function NavBar() {
   const { user, logout } = useAuth();
@@ -154,6 +156,7 @@ function AppRoutes() {
       <Route path="/carrito" element={<Carrito />} />
       <Route path="/producto/:id" element={<DetalleProducto />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/recuperar" element={<RecuperarPassword />} />
       <Route path="*" element={
         <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'system-ui' }}>
           <h2>Página no encontrada 404</h2>
@@ -168,12 +171,14 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <ProductsProvider>
-          <BrowserRouter>
-            <NavBar />
-            <AppRoutes />
-          </BrowserRouter>
-        </ProductsProvider>
+        <WishlistProvider> 
+          <ProductsProvider>
+            <BrowserRouter>
+              <NavBar />
+              <AppRoutes />
+            </BrowserRouter>
+          </ProductsProvider>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );

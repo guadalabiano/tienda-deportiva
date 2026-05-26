@@ -35,7 +35,7 @@ export default function Registro() {
       login(user);
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Error al registrarse');
+      setError(err.message);
     } finally {
       setLoading(false);
     }

@@ -71,6 +71,60 @@ const productosDB = [
     descripcion: 'Zapatillas cómodas para uso diario con diseño moderno.',
     stock: 20,
     imagen: 'https://via.placeholder.com/300x300?text=Zapatillas+Casual'
+  },
+  {
+    id: 9,
+    nombre: 'Camiseta Titular Godoy Cruz',
+    precio: 45000,
+    categoria: 'remeras',
+    descripcion: 'Camiseta oficial del Tomba para alentar en el estadio.',
+    stock: 15,
+    imagen: 'https://via.placeholder.com/300x300?text=Camiseta+Godoy+Cruz'
+  },
+  {
+    id: 10,
+    nombre: 'Camiseta River Plate',
+    precio: 45000,
+    categoria: 'remeras',
+    descripcion: 'Camiseta titular con la clásica banda roja.',
+    stock: 20,
+    imagen: 'https://via.placeholder.com/300x300?text=Camiseta+River'
+  },
+  {
+    id: 11,
+    nombre: 'Camiseta Boca Juniors',
+    precio: 45000,
+    categoria: 'remeras',
+    descripcion: 'Camiseta titular azul y oro.',
+    stock: 18,
+    imagen: 'https://via.placeholder.com/300x300?text=Camiseta+Boca'
+  },
+  {
+    id: 12,
+    nombre: 'Camiseta Racing Club',
+    precio: 45000,
+    categoria: 'remeras',
+    descripcion: 'La celeste y blanca oficial.',
+    stock: 12,
+    imagen: 'https://via.placeholder.com/300x300?text=Camiseta+Racing'
+  },
+  {
+    id: 13,
+    nombre: 'Botines Fútbol 5',
+    precio: 65000,
+    categoria: 'zapatillas',
+    descripcion: 'Ideales para césped sintético y partidos semanales con amigos.',
+    stock: 25,
+    imagen: 'https://via.placeholder.com/300x300?text=Botines+Futbol'
+  },
+  {
+    id: 14,
+    nombre: 'Short Entrenamiento',
+    precio: 15000,
+    categoria: 'pantalones',
+    descripcion: 'Short liviano, ideal para hacer bici o musculación.',
+    stock: 30,
+    imagen: 'https://via.placeholder.com/300x300?text=Short+Entrenamiento'
   }
 ];
 

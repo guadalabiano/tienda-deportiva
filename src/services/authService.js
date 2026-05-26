@@ -62,6 +62,21 @@ export const authService = {
     localStorage.removeItem('token');
   },
 
+  RecuperarPassword: async (email) => {
+    // Simulamos que tarda un poquito en conectarse, igual que el login
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Buscamos si el mail existe en nuestra lista de usuarios
+    const usuario = usuariosRegistrados.find(u => u.email === email);
+    
+    if (!usuario) {
+      throw new Error('No encontramos ninguna cuenta con ese email');
+    }
+
+    // Si llega hasta acá, es porque el mail existe y simulamos que se envió el correo
+    return true;
+  },
+
   getProfile: async () => {
     // Simular delay de red
     await new Promise(resolve => setTimeout(resolve, 300));

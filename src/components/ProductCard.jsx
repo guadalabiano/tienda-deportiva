@@ -1,32 +1,66 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 export default function ProductCard({ producto }) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const isFav = isInWishlist(producto.id);
 
   const handleAddToCart = () => {
     addToCart(producto);
     alert(`${producto.nombre} agregado al carrito`);
   };
 
+  const handleToggleWishlist = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(producto);
+  };
+
   return (
-    <div style={{
-      background: 'white',
-      borderRadius: '12px',
-      overflow: 'hidden',
-      boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
-      transition: 'transform 0.3s, box-shadow 0.3s',
-      cursor: 'pointer'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'translateY(-4px)';
-      e.currentTarget.style.boxShadow = '0 12px 16px rgba(0,0,0,0.1)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.07)';
-    }}>
-      
+    <div 
+      style={{
+        background: 'white',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
+        transition: 'transform 0.3s, box-shadow 0.3s',
+        cursor: 'pointer',
+        position: 'relative'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-4px)';
+        e.currentTarget.style.boxShadow = '0 12px 16px rgba(0,0,0,0.1)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.07)';
+      }}
+    >
+      {/* Botón de Corazón */}
+      <button
+        onClick={handleToggleWishlist}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '1.4rem',
+          zIndex: 10,
+          padding: '0',
+          color: isFav ? '#ef4444' : '#94a3b8',
+          transition: 'transform 0.2s ease-in-out'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        {isFav ? '♥' : '♡'}
+      </button>
+
       {/* Imagen */}
       <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
         <img 
