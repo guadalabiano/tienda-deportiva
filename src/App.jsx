@@ -11,6 +11,7 @@ import Checkout from './pages/Checkout.jsx';
 import Wishlist from './pages/Wishlist.jsx';
 import DetalleProducto from './pages/DetalleProducto.jsx';
 import Admin from './pages/Admin.jsx';
+import RecuperarPassword from './pages/RecuperarPassword.jsx';
 
 function NavBar() {
   const { user, logout } = useAuth();
@@ -190,6 +191,7 @@ function AppRoutes() {
       <Route path="/wishlist" element={<Wishlist />} />
       <Route path="/producto/:id" element={<DetalleProducto />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/recuperar" element={<RecuperarPassword />} />
       <Route path="*" element={
         <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'system-ui' }}>
           <h2>Página no encontrada 404</h2>

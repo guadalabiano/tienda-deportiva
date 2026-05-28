@@ -3,51 +3,31 @@ import { createContext, useState, useContext, useEffect } from 'react';
 const WishlistContext = createContext();
 
 export function WishlistProvider({ children }) {
-  const [wishlistItems, setWishlistItems] = useState([]);
-
-  useEffect(() => {
-    const savedWishlist = localStorage.getItem('wishlist');
-    if (savedWishlist) {
-      setWishlistItems(JSON.parse(savedWishlist));
-    }
-  }, []);
+  const [wishlistItems, setWishlistItems] = useState(() => {
+    const saved = localStorage.getItem('wishlist');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
     localStorage.setItem('wishlist', JSON.stringify(wishlistItems));
   }, [wishlistItems]);
 
-  const addToWishlist = (producto) => {
+  const toggleWishlist = (producto) => {
     setWishlistItems(prev => {
-      if (prev.some(item => item.id === producto.id)) {
-        return prev;
+      const existe = prev.some(item => item.id === producto.id);
+      if (existe) {
+        return prev.filter(item => item.id !== producto.id);
       }
       return [...prev, producto];
     });
   };
 
-  const removeFromWishlist = (productId) => {
-    setWishlistItems(prev => prev.filter(item => item.id !== productId));
-  };
-
-  const toggleWishlist = (producto) => {
-    if (isInWishlist(producto.id)) {
-      removeFromWishlist(producto.id);
-    } else {
-      addToWishlist(producto);
-    }
-  };
-
   const isInWishlist = (productId) => wishlistItems.some(item => item.id === productId);
-
-  const clearWishlist = () => {
-    setWishlistItems([]);
-  };
+  const clearWishlist = () => setWishlistItems([]);
 
   return (
     <WishlistContext.Provider value={{
       wishlistItems,
-      addToWishlist,
-      removeFromWishlist,
       toggleWishlist,
       isInWishlist,
       clearWishlist,
@@ -65,3 +45,4 @@ export function useWishlist() {
   }
   return context;
 }
+

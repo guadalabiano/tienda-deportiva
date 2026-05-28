@@ -5,7 +5,7 @@ import { useWishlist } from '../context/WishlistContext';
 export default function ProductCard({ producto }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
-  const inWishlist = isInWishlist(producto.id);
+  const isFav = isInWishlist(producto.id);
 
   const handleAddToCart = () => {
     addToCart(producto);
@@ -19,27 +19,49 @@ export default function ProductCard({ producto }) {
   };
 
   return (
-    <div style={{
-      background: 'white',
-      borderRadius: '12px',
-      overflow: 'hidden',
-      boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
-      transition: 'transform 0.3s, box-shadow 0.3s',
-      cursor: 'pointer'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'translateY(-4px)';
-      e.currentTarget.style.boxShadow = '0 12px 16px rgba(0,0,0,0.1)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.07)';
-    }}>
-      
-      {/* Imagen */}
+    <div
+      style={{
+        background: 'white',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
+        transition: 'transform 0.3s, box-shadow 0.3s',
+        cursor: 'pointer',
+        position: 'relative'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-4px)';
+        e.currentTarget.style.boxShadow = '0 12px 16px rgba(0,0,0,0.1)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.07)';
+      }}
+    >
+      <button
+        onClick={handleToggleWishlist}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '1.4rem',
+          zIndex: 10,
+          padding: '0',
+          color: isFav ? '#ef4444' : '#94a3b8',
+          transition: 'transform 0.2s ease-in-out'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        {isFav ? '♥' : '♡'}
+      </button>
+
       <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
-        <img 
-          src={producto.imagen} 
+        <img
+          src={producto.imagen}
           alt={producto.nombre}
           style={{
             width: '100%',
@@ -50,7 +72,6 @@ export default function ProductCard({ producto }) {
         />
       </Link>
 
-      {/* Contenido */}
       <div style={{ padding: '1rem' }}>
         <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
           <h3 style={{
@@ -99,9 +120,9 @@ export default function ProductCard({ producto }) {
             <button
               onClick={handleToggleWishlist}
               style={{
-                background: inWishlist ? '#f97316' : 'transparent',
-                color: inWishlist ? 'white' : '#0f172a',
-                border: inWishlist ? 'none' : '1px solid #cbd5e1',
+                background: isFav ? '#f97316' : 'transparent',
+                color: isFav ? 'white' : '#0f172a',
+                border: isFav ? 'none' : '1px solid #cbd5e1',
                 padding: '8px 12px',
                 borderRadius: '8px',
                 cursor: 'pointer',
@@ -110,19 +131,19 @@ export default function ProductCard({ producto }) {
                 transition: 'background 0.2s, color 0.2s'
               }}
               onMouseEnter={(e) => {
-                if (!inWishlist) {
+                if (!isFav) {
                   e.target.style.borderColor = '#f97316';
                   e.target.style.color = '#f97316';
                 }
               }}
               onMouseLeave={(e) => {
-                if (!inWishlist) {
+                if (!isFav) {
                   e.target.style.borderColor = '#cbd5e1';
                   e.target.style.color = '#0f172a';
                 }
               }}
             >
-              {inWishlist ? 'En deseos' : 'Deseo'}
+              {isFav ? 'En deseos' : 'Deseo'}
             </button>
 
             {producto.stock > 0 ? (

@@ -139,13 +139,18 @@ export default function Login() {
           <p style={{ margin: '0.25rem 0' }}>🔑 123456</p>
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.9rem', color: '#64748b' }}>
-          ¿No tenés cuenta?{' '}
-          <Link to="/registro" style={{ color: '#f97316', textDecoration: 'none', fontWeight: 'bold' }}>
-            Registrate acá
+       <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'center' }}>
+          <Link to="/recuperar" style={{ color: '#0f172a', textDecoration: 'underline', fontSize: '0.85rem', fontWeight: '500', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = '#f97316'} onMouseOut={(e) => e.target.style.color = '#0f172a'}>
+            ¿Olvidaste tu contraseña?
           </Link>
-        </p>
-
+          
+          <p style={{ fontSize: '0.9rem', color: '#64748b', margin: '0' }}>
+            ¿No tenés cuenta?{' '}
+            <Link to="/registro" style={{ color: '#f97316', textDecoration: 'none', fontWeight: 'bold' }}>
+              Registrate acá
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
