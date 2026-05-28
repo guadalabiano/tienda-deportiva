@@ -57,7 +57,7 @@ export const authService = {
     }
 
     const token = createToken(user);
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
 
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -85,15 +85,15 @@ export const authService = {
     saveUsers(updatedUsers);
 
     const token = createToken(newUser);
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
 
     const { password: _, ...userWithoutPassword } = newUser;
     return userWithoutPassword;
   },
 
   logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
   },
 
   RecuperarPassword: async (email) => {
@@ -110,7 +110,7 @@ export const authService = {
   },
 
   getProfile: async () => {
-    const saved = localStorage.getItem('user');
+    const saved = sessionStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   }
 };
