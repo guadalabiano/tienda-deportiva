@@ -1,10 +1,11 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { productService } from '../services/productService';
+import { productosData } from '../data/productos';
 
 const ProductsContext = createContext();
 
 export function ProductsProvider({ children }) {
   const [productos, setProductos] = useState([]);
+  const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState('todos');
   const [error, setError] = useState(null);
@@ -13,14 +14,13 @@ export function ProductsProvider({ children }) {
     cargarProductos();
   }, []);
 
-  const cargarProductos = async () => {
+  const cargarProductos = () => {
     try {
       setLoading(true);
-      const data = await productService.getAllProductos();
-      setProductos(data);
+      setProductos(productosData);
       setError(null);
     } catch (err) {
-      console.error('Error cargando productos:', err);
+      console.error('Error cargando productos locales:', err);
       setError('Error al cargar los productos');
     } finally {
       setLoading(false);
@@ -29,11 +29,12 @@ export function ProductsProvider({ children }) {
 
   const getProductos = () => {
     if (filtro === 'todos') return productos;
+    if (filtro === 'destacados') return productos.filter(p => p.destacado);
     return productos.filter(p => p.categoria === filtro);
   };
 
   const getProductoById = (id) => {
-    return productos.find(p => p.id === parseInt(id));
+    return productos.find(p => p.id === parseInt(id, 10));
   };
 
   const setFiltroCategoria = (categoria) => {
@@ -47,6 +48,8 @@ export function ProductsProvider({ children }) {
       loading,
       filtro,
       error,
+      busqueda,     
+      setBusqueda,
       getProductoById,
       setFiltroCategoria,
       recargarProductos: cargarProductos

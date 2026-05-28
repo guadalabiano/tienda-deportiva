@@ -1,99 +1,116 @@
-// Datos de usuarios en memoria
-const usuariosRegistrados = [
+const defaultUsers = [
   {
     id: 1,
-    nombre: 'Admin User',
+    nombre: 'Admin',
     email: 'admin@tienda.com',
     password: '123456',
     rol: 'admin'
+  },
+  {
+    id: 2,
+    nombre: 'Usuario Demo',
+    email: 'user@tienda.com',
+    password: '123456',
+    rol: 'user'
   }
 ];
 
+const getStoredUsers = () => {
+  const saved = localStorage.getItem('users');
+  if (!saved) {
+    localStorage.setItem('users', JSON.stringify(defaultUsers));
+    return [...defaultUsers];
+  }
+
+  try {
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (err) {
+    console.error('Error leyendo usuarios del almacenamiento local:', err);
+  }
+
+  localStorage.setItem('users', JSON.stringify(defaultUsers));
+  return [...defaultUsers];
+};
+
+const saveUsers = (users) => {
+  localStorage.setItem('users', JSON.stringify(users));
+};
+
+const createToken = (user) => {
+  return btoa(JSON.stringify({ id: user.id, email: user.email, timestamp: Date.now() }));
+};
+
 export const authService = {
   login: async (email, password) => {
-    // Simular delay de red
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const usuario = usuariosRegistrados.find(u => u.email === email && u.password === password);
-    
-    if (!usuario) {
-      throw new Error('Email o contraseña incorrectos');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const users = getStoredUsers();
+    const user = users.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    );
+
+    if (!user) {
+      throw new Error('Email o contraseña inválidos');
     }
 
-    // Crear token simulado
-    const token = btoa(JSON.stringify({ email, id: usuario.id }));
+    const token = createToken(user);
     localStorage.setItem('token', token);
-    
-    // Retornar usuario sin la contraseña
-    const { password: _, ...userWithoutPassword } = usuario;
+
+    const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   },
 
   registro: async (nombre, email, password) => {
-    // Simular delay de red
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Verificar si el email ya existe
-    if (usuariosRegistrados.some(u => u.email === email)) {
-      throw new Error('Este email ya está registrado');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const users = getStoredUsers();
+    const emailExists = users.some((u) => u.email.toLowerCase() === email.toLowerCase());
+
+    if (emailExists) {
+      throw new Error('Ya existe una cuenta con ese email');
     }
 
-    // Crear nuevo usuario
-    const nuevoUsuario = {
-      id: usuariosRegistrados.length + 1,
+    const newUser = {
+      id: users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1,
       nombre,
       email,
       password,
       rol: 'user'
     };
 
-    usuariosRegistrados.push(nuevoUsuario);
+    const updatedUsers = [...users, newUser];
+    saveUsers(updatedUsers);
 
-    // Crear token simulado
-    const token = btoa(JSON.stringify({ email, id: nuevoUsuario.id }));
+    const token = createToken(newUser);
     localStorage.setItem('token', token);
 
-    // Retornar usuario sin la contraseña
-    const { password: _, ...userWithoutPassword } = nuevoUsuario;
+    const { password: _, ...userWithoutPassword } = newUser;
     return userWithoutPassword;
   },
 
   logout: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
   },
 
   RecuperarPassword: async (email) => {
-    // Simulamos que tarda un poquito en conectarse, igual que el login
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Buscamos si el mail existe en nuestra lista de usuarios
-    const usuario = usuariosRegistrados.find(u => u.email === email);
-    
-    if (!usuario) {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const users = getStoredUsers();
+    const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+
+    if (!user) {
       throw new Error('No encontramos ninguna cuenta con ese email');
     }
 
-    // Si llega hasta acá, es porque el mail existe y simulamos que se envió el correo
     return true;
   },
 
   getProfile: async () => {
-    // Simular delay de red
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('No autenticado');
-    }
-
-    const decoded = JSON.parse(atob(token));
-    const usuario = usuariosRegistrados.find(u => u.email === decoded.email);
-    
-    if (!usuario) {
-      throw new Error('Usuario no encontrado');
-    }
-
-    const { password: _, ...userWithoutPassword } = usuario;
-    return userWithoutPassword;
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
   }
 };

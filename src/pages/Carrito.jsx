@@ -130,11 +130,13 @@ export default function Carrito() {
                   </div>
                 </div>
 
-                <button style={{
+                <Link to="/checkout" style={{
+                  display: 'inline-block',
                   width: '100%',
                   background: '#f97316',
                   color: 'white',
-                  border: 'none',
+                  textAlign: 'center',
+                  textDecoration: 'none',
                   padding: '14px',
                   borderRadius: '8px',
                   fontWeight: 'bold',
@@ -146,7 +148,7 @@ export default function Carrito() {
                 onMouseEnter={(e) => e.target.style.background = '#ea580c'}
                 onMouseLeave={(e) => e.target.style.background = '#f97316'}>
                   Ir a Checkout
-                </button>
+                </Link>
 
                 <button onClick={clearCart} style={{
                   width: '100%',

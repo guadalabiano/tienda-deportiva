@@ -1,19 +1,24 @@
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider, useCart } from './context/CartContext';
-import { ProductsProvider } from './context/ProductsContext';
+import { ProductsProvider, useProducts } from './context/ProductsContext';
+import { WishlistProvider, useWishlist } from './context/WishlistContext';
+
 import Login from './pages/Login.jsx';
 import Registro from './pages/Registro.jsx';
 import Home from './pages/Home.jsx';
 import Carrito from './pages/Carrito.jsx';
+import Checkout from './pages/Checkout.jsx';
+import Wishlist from './pages/Wishlist.jsx';
 import DetalleProducto from './pages/DetalleProducto.jsx';
-import { WishlistProvider } from './context/WishlistContext';
 import Admin from './pages/Admin.jsx';
 import RecuperarPassword from './pages/RecuperarPassword.jsx';
 
 function NavBar() {
   const { user, logout } = useAuth();
   const { getTotalItems } = useCart();
+  const { getWishlistCount } = useWishlist();
+  const { busqueda, setBusqueda } = useProducts();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -26,7 +31,7 @@ function NavBar() {
       position: 'sticky',
       top: '0',
       zIndex: '1000',
-      background: '#0f172a', 
+      background: '#0f172a',
       padding: '1rem 2.5rem',
       display: 'flex',
       justifyContent: 'space-between',
@@ -35,7 +40,7 @@ function NavBar() {
       fontFamily: 'system-ui, sans-serif'
     }}>
       
-      {/* Logo / Nombre de la tienda */}
+      {/* A. LOGO (Izquierda) */}
       <Link to="/" style={{ 
         color: 'white', 
         textDecoration: 'none', 
@@ -46,9 +51,59 @@ function NavBar() {
         Sport<span style={{ color: '#f97316' }}>Max</span>
       </Link>
 
-      {/* Botones de la derecha */}
+      {/* B. BUSCADOR (Centro) */}
+      <div style={{ flex: 1, maxWidth: '450px', margin: '0 2rem', position: 'relative' }}>
+        <span style={{ position: 'absolute', left: '15px', top: '10px', fontSize: '1rem', opacity: '0.6' }}>🔍</span>
+        <input 
+          type="text" 
+          placeholder="Buscar productos..." 
+          value={busqueda} 
+          onChange={(e) => setBusqueda(e.target.value)} 
+          style={{
+            width: '100%',
+            padding: '10px 15px 10px 45px',
+            borderRadius: '25px',
+            border: 'none',
+            outline: 'none',
+            fontSize: '0.95rem',
+            boxSizing: 'border-box'
+          }}
+        />
+      </div>
+
+      {/* C. ELEMENTOS DE LA DERECHA (Favoritos, Carrito, Sesión) */}
       <div style={{ display: 'flex', gap: '25px', alignItems: 'center' }}>
         
+        {/* Botón de wishlist */}
+        <Link to="/wishlist" style={{
+          background: 'transparent',
+          border: 'none',
+          color: '#cbd5e1',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          position: 'relative',
+          padding: '5px',
+          textDecoration: 'none'
+        }}>
+          <span style={{ fontSize: '24px' }}>💖</span>
+          {getWishlistCount() > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-5px',
+              right: '-8px',
+              background: '#f97316',
+              color: 'white',
+              borderRadius: '50%',
+              padding: '2px 6px',
+              fontSize: '0.7rem',
+              fontWeight: 'bold'
+            }}>
+              {getWishlistCount()}
+            </span>
+          )}
+        </Link>
+
         {/* Botón del Carrito */}
         <Link to="/carrito" style={{
           background: 'transparent',
@@ -61,13 +116,11 @@ function NavBar() {
           padding: '5px',
           textDecoration: 'none'
         }}>
-          {/* Ícono de carrito en SVG */}
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
           </svg>
-          {/* Globito contador de productos */}
           {getTotalItems() > 0 && (
             <span style={{
               position: 'absolute',
@@ -85,6 +138,7 @@ function NavBar() {
           )}
         </Link>
 
+        {/* Opciones de Usuario */}
         {user ? (
           <>
             {user.rol === 'admin' && (
@@ -146,6 +200,7 @@ function NavBar() {
           </>
         )}
       </div>
+
     </nav>
   );
 }
@@ -157,6 +212,8 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
       <Route path="/carrito" element={<Carrito />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/wishlist" element={<Wishlist />} />
       <Route path="/producto/:id" element={<DetalleProducto />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/recuperar" element={<RecuperarPassword />} />
@@ -174,7 +231,7 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <WishlistProvider> 
+        <WishlistProvider>
           <ProductsProvider>
             <BrowserRouter>
               <NavBar />

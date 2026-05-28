@@ -5,7 +5,6 @@ import { useWishlist } from '../context/WishlistContext';
 export default function ProductCard({ producto }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
-
   const isFav = isInWishlist(producto.id);
 
   const handleAddToCart = () => {
@@ -13,14 +12,14 @@ export default function ProductCard({ producto }) {
     alert(`${producto.nombre} agregado al carrito`);
   };
 
-  const handleToggleWishlist = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleToggleWishlist = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
     toggleWishlist(producto);
   };
 
   return (
-    <div 
+    <div
       style={{
         background: 'white',
         borderRadius: '12px',
@@ -39,7 +38,6 @@ export default function ProductCard({ producto }) {
         e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.07)';
       }}
     >
-      {/* Botón de Corazón */}
       <button
         onClick={handleToggleWishlist}
         style={{
@@ -61,11 +59,27 @@ export default function ProductCard({ producto }) {
         {isFav ? '♥' : '♡'}
       </button>
 
-      {/* Imagen */}
       <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
-        <img 
-          src={producto.imagen} 
+        {producto.destacado && (
+          <span style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            background: '#f97316',
+            color: 'white',
+            padding: '6px 10px',
+            borderRadius: '999px',
+            fontSize: '0.75rem',
+            fontWeight: '700',
+            zIndex: 5
+          }}>
+            Destacado
+          </span>
+        )}
+        <img
+          src={producto.imagen}
           alt={producto.nombre}
+          onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/500x400?text=Imagen+no+disponible'; }}
           style={{
             width: '100%',
             height: '200px',
@@ -75,7 +89,6 @@ export default function ProductCard({ producto }) {
         />
       </Link>
 
-      {/* Contenido */}
       <div style={{ padding: '1rem' }}>
         <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
           <h3 style={{
@@ -109,8 +122,10 @@ export default function ProductCard({ producto }) {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginTop: '1rem'
+          marginTop: '1rem',
+          gap: '0.75rem'
         }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <span style={{
             fontSize: '1.3rem',
             fontWeight: '700',
@@ -118,38 +133,79 @@ export default function ProductCard({ producto }) {
           }}>
             ${producto.precio.toLocaleString()}
           </span>
-          
-          {producto.stock > 0 ? (
+          {producto.oferta && producto.precioAnterior && (
+            <span style={{
+              fontSize: '0.85rem',
+              color: '#64748b',
+              textDecoration: 'line-through'
+            }}>
+              ${producto.precioAnterior.toLocaleString()}
+            </span>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <button
-              onClick={handleAddToCart}
+              onClick={handleToggleWishlist}
               style={{
-                background: '#f97316',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '6px',
+                background: isFav ? '#f97316' : 'transparent',
+                color: isFav ? 'white' : '#0f172a',
+                border: isFav ? 'none' : '1px solid #cbd5e1',
+                padding: '8px 12px',
+                borderRadius: '8px',
                 cursor: 'pointer',
                 fontWeight: '600',
                 fontSize: '0.9rem',
-                transition: 'background 0.2s'
+                transition: 'background 0.2s, color 0.2s'
               }}
-              onMouseEnter={(e) => e.target.style.background = '#ea580c'}
-              onMouseLeave={(e) => e.target.style.background = '#f97316'}
+              onMouseEnter={(e) => {
+                if (!isFav) {
+                  e.target.style.borderColor = '#f97316';
+                  e.target.style.color = '#f97316';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isFav) {
+                  e.target.style.borderColor = '#cbd5e1';
+                  e.target.style.color = '#0f172a';
+                }
+              }}
             >
-              Agregar
+              {isFav ? 'En deseos' : 'Deseo'}
             </button>
-          ) : (
-            <span style={{
-              background: '#fee2e2',
-              color: '#dc2626',
-              padding: '8px 12px',
-              borderRadius: '6px',
-              fontSize: '0.85rem',
-              fontWeight: '600'
-            }}>
-              Sin stock
-            </span>
-          )}
+
+            {producto.stock > 0 ? (
+              <button
+                onClick={handleAddToCart}
+                style={{
+                  background: '#f97316',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '0.9rem',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#ea580c'}
+                onMouseLeave={(e) => e.target.style.background = '#f97316'}
+              >
+                Agregar
+              </button>
+            ) : (
+              <span style={{
+                background: '#fee2e2',
+                color: '#dc2626',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                fontSize: '0.85rem',
+                fontWeight: '600'
+              }}>
+                Sin stock
+              </span>
+            )}
+          </div>
         </div>
 
         <p style={{

@@ -10,6 +10,7 @@ import { mkdir } from 'fs/promises';
 import authRoutes from './routes/auth.js';
 import productosRoutes from './routes/productos.js';
 import ordenesRoutes from './routes/ordenes.js';
+import mercadoPagoRoutes from './routes/mercadopago.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,6 +30,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/productos', productosRoutes);
 app.use('/api/ordenes', ordenesRoutes);
+app.use('/api/mercadopago', mercadoPagoRoutes);
 
 // Ruta de prueba
 app.get('/api/health', (req, res) => {
