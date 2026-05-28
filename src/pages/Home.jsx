@@ -97,9 +97,9 @@ export default function Home() {
               </div>
               <div style={{ position: 'relative', overflow: 'hidden' }}>
                 <img
-                  src={productoOfertaDelDia.imagen}
+                  src={productoOfertaDelDia.imagen || 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=700&q=80'}
                   alt={productoOfertaDelDia.nombre}
-                  onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/700x500?text=Oferta+del+d%C3%ADa'; }}
+                  onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=700&q=80'; }}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
