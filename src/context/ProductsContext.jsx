@@ -28,6 +28,7 @@ export function ProductsProvider({ children }) {
 
   const getProductos = () => {
     if (filtro === 'todos') return productos;
+    if (filtro === 'destacados') return productos.filter(p => p.destacado);
     return productos.filter(p => p.categoria === filtro);
   };
 

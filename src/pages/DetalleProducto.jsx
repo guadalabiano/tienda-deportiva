@@ -69,6 +69,7 @@ export default function DetalleProducto() {
             <img
               src={producto.imagen}
               alt={producto.nombre}
+              onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/800x600?text=Imagen+no+disponible'; }}
               style={{
                 width: '100%',
                 borderRadius: '12px',

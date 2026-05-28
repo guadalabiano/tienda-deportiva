@@ -9,6 +9,7 @@ export default function Checkout() {
   const { cartItems, getTotalPrice, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [paymentMethod, setPaymentMethod] = useState('tarjeta');
   const [cardHolder, setCardHolder] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [expiration, setExpiration] = useState('');
@@ -31,31 +32,44 @@ export default function Checkout() {
       return;
     }
 
-    if (!cardHolder || !cardNumber || !expiration || !cvv) {
-      setMessage('Completa todos los datos de pago.');
-      return;
+    if (paymentMethod === 'tarjeta') {
+      if (!cardHolder || !cardNumber || !expiration || !cvv) {
+        setMessage('Completa todos los datos de pago.');
+        return;
+      }
     }
 
     setMessage('');
     setProcessing(true);
 
     try {
-      const payment = await mercadoPagoService.createPayment({
-        cardHolder,
-        cardNumber,
-        expiration,
-        cvv,
-        amount: total
-      });
+      if (paymentMethod === 'tarjeta') {
+        const payment = await mercadoPagoService.createPayment({
+          cardHolder,
+          cardNumber,
+          expiration,
+          cvv,
+          amount: total
+        });
 
-      if (!payment?.success) {
-        throw new Error(payment?.error || 'Pago rechazado');
+        if (!payment?.success) {
+          throw new Error(payment?.error || 'Pago rechazado');
+        }
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 900));
       }
 
       const order = await ordenService.createOrden(cartItems);
       clearCart();
       setOrderResult(order);
-      setMessage(`Pago aprobado. Orden #${order.id} registrada correctamente.`);
+
+      if (paymentMethod === 'tarjeta') {
+        setMessage(`Pago aprobado. Orden #${order.id} registrada correctamente.`);
+      } else if (paymentMethod === 'efectivo') {
+        setMessage(`Orden #${order.id} registrada. Pagás en efectivo al recibir el pedido.`);
+      } else {
+        setMessage(`Orden #${order.id} registrada. Seguimos con la forma de pago elegida.`);
+      }
     } catch (error) {
       setMessage(error.response?.data?.error || error.message || 'Error procesando el pago.');
     } finally {
@@ -100,17 +114,112 @@ export default function Checkout() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2rem' }}>
           <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 6px 18px rgba(15, 23, 42, 0.08)' }}>
             <h2 style={{ marginTop: 0, color: '#0f172a' }}>Datos de Pago</h2>
-            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Simulamos Mercado Pago con tarjetas ficticias para pruebas.</p>
+            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Elegí cómo querés pagar: tarjeta ficticia, efectivo o transferencia.</p>
             <form onSubmit={handleSubmit}>
-              <label style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
-                Titular de la tarjeta
-              </label>
-              <input
-                value={cardHolder}
-                onChange={(e) => setCardHolder(e.target.value)}
-                placeholder="Nombre completo"
-                style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', marginBottom: '1rem' }}
-              />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 1rem', borderRadius: '12px', border: paymentMethod === 'tarjeta' ? '2px solid #f97316' : '1px solid #cbd5e1', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="tarjeta"
+                    checked={paymentMethod === 'tarjeta'}
+                    onChange={() => setPaymentMethod('tarjeta')}
+                    style={{ accentColor: '#f97316' }}
+                  />
+                  Tarjeta
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 1rem', borderRadius: '12px', border: paymentMethod === 'efectivo' ? '2px solid #f97316' : '1px solid #cbd5e1', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="efectivo"
+                    checked={paymentMethod === 'efectivo'}
+                    onChange={() => setPaymentMethod('efectivo')}
+                    style={{ accentColor: '#f97316' }}
+                  />
+                  Efectivo
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 1rem', borderRadius: '12px', border: paymentMethod === 'transferencia' ? '2px solid #f97316' : '1px solid #cbd5e1', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="transferencia"
+                    checked={paymentMethod === 'transferencia'}
+                    onChange={() => setPaymentMethod('transferencia')}
+                    style={{ accentColor: '#f97316' }}
+                  />
+                  Transferencia
+                </label>
+              </div>
+
+              {paymentMethod === 'tarjeta' && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ padding: '12px 16px', marginBottom: '1rem', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                    <p style={{ margin: 0, fontSize: '0.95rem', color: '#475569' }}>
+                      Usá una tarjeta de prueba: <strong>5031 7557 3453 0604</strong> / CVV <strong>123</strong> / Expiración <strong>12/30</strong>.
+                    </p>
+                  </div>
+
+                  <label style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
+                    Titular de la tarjeta
+                  </label>
+                  <input
+                    value={cardHolder}
+                    onChange={(e) => setCardHolder(e.target.value)}
+                    placeholder="Nombre completo"
+                    style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', marginBottom: '1rem' }}
+                  />
+
+                  <label style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
+                    Número de tarjeta
+                  </label>
+                  <input
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(e.target.value)}
+                    placeholder="1234 5678 9012 3456"
+                    style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', marginBottom: '1rem' }}
+                  />
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
+                        Expiración
+                      </label>
+                      <input
+                        value={expiration}
+                        onChange={(e) => setExpiration(e.target.value)}
+                        placeholder="MM/AA"
+                        style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
+                        CVV
+                      </label>
+                      <input
+                        value={cvv}
+                        onChange={(e) => setCvv(e.target.value)}
+                        placeholder="123"
+                        style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod !== 'tarjeta' && (
+                <div style={{ marginBottom: '1rem', padding: '16px', borderRadius: '14px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                  <p style={{ margin: '0 0 0.5rem 0', color: '#0f172a', fontWeight: '700' }}>
+                    {paymentMethod === 'efectivo' ? 'Pago en efectivo' : 'Pago por transferencia'}
+                  </p>
+                  <p style={{ margin: 0, color: '#475569' }}>
+                    {paymentMethod === 'efectivo'
+                      ? 'Seleccionaste efectivo. Podés pagar al recibir tu pedido.'
+                      : 'Seleccionaste transferencia. Conservá el comprobante y revisa tu correo.'}
+                  </p>
+                </div>
+              )}
+
 
               <label style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
                 Número de tarjeta

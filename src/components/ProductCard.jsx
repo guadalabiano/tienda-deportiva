@@ -60,9 +60,26 @@ export default function ProductCard({ producto }) {
       </button>
 
       <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
+        {producto.destacado && (
+          <span style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            background: '#f97316',
+            color: 'white',
+            padding: '6px 10px',
+            borderRadius: '999px',
+            fontSize: '0.75rem',
+            fontWeight: '700',
+            zIndex: 5
+          }}>
+            Destacado
+          </span>
+        )}
         <img
           src={producto.imagen}
           alt={producto.nombre}
+          onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/500x400?text=Imagen+no+disponible'; }}
           style={{
             width: '100%',
             height: '200px',
@@ -108,6 +125,7 @@ export default function ProductCard({ producto }) {
           marginTop: '1rem',
           gap: '0.75rem'
         }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <span style={{
             fontSize: '1.3rem',
             fontWeight: '700',
@@ -115,8 +133,18 @@ export default function ProductCard({ producto }) {
           }}>
             ${producto.precio.toLocaleString()}
           </span>
+          {producto.oferta && producto.precioAnterior && (
+            <span style={{
+              fontSize: '0.85rem',
+              color: '#64748b',
+              textDecoration: 'line-through'
+            }}>
+              ${producto.precioAnterior.toLocaleString()}
+            </span>
+          )}
+        </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <button
               onClick={handleToggleWishlist}
               style={{
