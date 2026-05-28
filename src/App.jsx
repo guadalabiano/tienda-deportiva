@@ -23,6 +23,9 @@ function NavBar() {
 
   return (
     <nav style={{
+      position: 'sticky',
+      top: '0',
+      zIndex: '1000',
       background: '#0f172a', 
       padding: '1rem 2.5rem',
       display: 'flex',
@@ -175,7 +178,10 @@ export default function App() {
           <ProductsProvider>
             <BrowserRouter>
               <NavBar />
-              <AppRoutes />
+              {/* Contenedor que separa la barra del resto del contenido */}
+              <div style={{ paddingTop: '70px' }}>
+                <AppRoutes />
+              </div>
             </BrowserRouter>
           </ProductsProvider>
         </WishlistProvider>

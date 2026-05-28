@@ -41,11 +41,17 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: '85vh', background: '#f8fafc', paddingBottom: '3rem' }}>
+      
       {/* Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
         color: 'white',
-        padding: '3rem 2rem',
+        
+        // --- ESTO ES LO ÚNICO QUE CAMBIA ACÁ ---
+        padding: 'calc(3rem + 70px) 2rem 3rem 2rem', 
+        marginTop: '-70px', 
+        // ---------------------------------------
+
         textAlign: 'center',
         marginBottom: '3rem'
       }}>
@@ -61,7 +67,12 @@ export default function Home() {
         
         {/* Panel de Control: Búsqueda y Filtros */}
         <div style={{
-          background: 'white',
+         position: 'sticky',
+          top: '70px', // IMPORTANTE: Ajustá este número para que coincida con el alto de tu NavBar azul
+          zIndex: '900',
+          backgroundColor: '#ffffff', // Fondo blanco para tapar los productos al scrollear
+          // ----------------------------------------
+          
           padding: '1.5rem',
           borderRadius: '12px',
           boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
