@@ -1,15 +1,18 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import SuccessToast from './SuccessToast';
 
 export default function ProductCard({ producto }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const isFav = isInWishlist(producto.id);
+  const [showToast, setShowToast] = useState(false);
 
   const handleAddToCart = () => {
     addToCart(producto);
-    alert(`${producto.nombre} agregado al carrito`);
+    setShowToast(true);
   };
 
   const handleToggleWishlist = (event) => {
