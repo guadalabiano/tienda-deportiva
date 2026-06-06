@@ -1,14 +1,20 @@
-import api from './api';
-
-export const mercadoPagoService = {
-  createPayment: async ({ cardHolder, cardNumber, expiration, cvv, amount }) => {
-    const response = await api.post('/mercadopago/checkout', {
-      cardHolder,
-      cardNumber,
-      expiration,
-      cvv,
-      amount
+export const crearPreferenciaPago = async (totalCarrito) => {
+  try {
+    const response = await fetch('http://localhost:3000/api/mercadopago/crear-preferencia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ total: totalCarrito }),
     });
-    return response.data;
+
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.error || 'Error al conectar con el servidor');
+    }
+    
+    return result; 
+  } catch (error) {
+    console.error('Error en el servicio:', error);
+    throw error;
   }
 };
