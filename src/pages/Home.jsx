@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useProducts } from '../context/ProductsContext';
 import ProductCard from '../components/ProductCard';
-
+import Chatbot from '../components/Chatbot';
 export default function Home() {
   const { productos, allProductos, loading, filtro, setFiltroCategoria, busqueda } = useProducts();
 
@@ -308,6 +308,7 @@ export default function Home() {
           </>
         )}
       </div>
+      <Chatbot />
     </div>
   );
 }
