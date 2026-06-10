@@ -3,18 +3,21 @@ import { createContext, useState, useContext, useEffect } from 'react';
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    if (typeof window === 'undefined') return [];
 
-  useEffect(() => {
-    // Cargar carrito del localStorage
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
+    try {
+      const savedCart = localStorage.getItem('cart');
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (error) {
+      console.error('Error leyendo carrito del almacenamiento:', error);
+      return [];
     }
-  }, []);
+  });
 
   useEffect(() => {
-    // Guardar carrito en localStorage
+    if (typeof window === 'undefined') return;
+
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 

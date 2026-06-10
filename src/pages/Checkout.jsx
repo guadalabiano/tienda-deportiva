@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -6,13 +6,16 @@ import { ordenService } from '../services/ordenService';
 import { crearPreferenciaPago } from '../services/mercadoPagoService';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
-// Inicialización de Mercado Pago con la clave en formato string (entre comillas)
-initMercadoPago('APP_USR-fe6ea350-234d-4d2f-81be-7a37e2229380', { locale: 'es-AR' });
+const MP_PUBLIC_KEY = import.meta.env.VITE_MP_PUBLIC_KEY || 'APP_USR-fe6ea350-234d-4d2f-81be-7a37e2229380';
 
 export default function Checkout() {
   const { cartItems, getTotalPrice, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    initMercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' });
+  }, []);
   
   const [paymentMethod, setPaymentMethod] = useState('mercadopago');
   const [processing, setProcessing] = useState(false);
@@ -42,8 +45,8 @@ export default function Checkout() {
 
     try {
       if (paymentMethod === 'mercadopago') {
-        // Pedimos el ID de preferencia al backend
-        const data = await crearPreferenciaPago(total);
+        // Pedimos el ID de preferencia al backend con los ítems reales del carrito
+        const data = await crearPreferenciaPago(cartItems, total);
         
         if (data && data.id) {
           setPreferenceId(data.id);
