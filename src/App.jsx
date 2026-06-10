@@ -13,6 +13,7 @@ import Wishlist from './pages/Wishlist.jsx';
 import DetalleProducto from './pages/DetalleProducto.jsx';
 import Admin from './pages/Admin.jsx';
 import RecuperarPassword from './pages/RecuperarPassword.jsx';
+import Footer from './pages/Footer'; // Asegurate de que el Footer esté en esta ruta
 
 function NavBar() {
   const { user, logout } = useAuth();
@@ -234,11 +235,23 @@ export default function App() {
         <WishlistProvider>
           <ProductsProvider>
             <BrowserRouter>
-              <NavBar />
-              {/* Contenedor que separa la barra del resto del contenido */}
-              <div style={{ paddingTop: '70px' }}>
-                <AppRoutes />
+              
+              {/* Contenedor principal: minHeight 100vh para que ocupe toda la pantalla y flex para empujar el Footer */}
+              <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                
+                {/* La barra de navegación arriba */}
+                <NavBar />
+                
+                {/* El main toma todo el espacio libre que queda en el medio */}
+                <main style={{ flex: 1 }}>
+                  <AppRoutes />
+                </main>
+
+                {/* El Footer se queda pegado abajo */}
+                <Footer />
+
               </div>
+
             </BrowserRouter>
           </ProductsProvider>
         </WishlistProvider>

@@ -1,10 +1,35 @@
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import CartItem from '../components/CartItem';
+import CalculadoraEnvio from '../components/CalculadoraEnvio';
 
 export default function Carrito() {
   const { cartItems, clearCart, getTotalPrice, getTotalItems } = useCart();
   const total = getTotalPrice();
+
+  // Estados
+  const [envioValido, setEnvioValido] = useState(false);
+  const [totalConEnvio, setTotalConEnvio] = useState(total);
+  const [errorCheckout, setErrorCheckout] = useState(''); // Estado para el cartel integrado
+  
+  const navigate = useNavigate();
+
+  // Si el usuario soluciona el tema del envío, limpiamos el error automáticamente
+  useEffect(() => {
+    if (envioValido) {
+      setErrorCheckout('');
+    }
+  }, [envioValido]);
+
+  // Manejador del botón
+  const handleCheckout = () => {
+    if (!envioValido) {
+      setErrorCheckout("⚠️ Calculá el envío o elegí retiro para continuar.");
+      return;
+    }
+    navigate('/checkout');
+  };
 
   return (
     <div style={{ minHeight: '85vh', background: '#f8fafc', paddingBottom: '3rem' }}>
@@ -48,24 +73,34 @@ export default function Carrito() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
             
-            {/* Productos */}
-            <div style={{
-              background: 'white',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
-            }}>
+            {/* Productos y Envío */}
+            <div>
               <div style={{
-                padding: '1rem',
-                borderBottom: '1px solid #e2e8f0',
-                background: '#f1f5f9'
+                background: 'white',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
               }}>
-                <h3 style={{ margin: 0, color: '#0f172a' }}>Productos</h3>
+                <div style={{
+                  padding: '1rem',
+                  borderBottom: '1px solid #e2e8f0',
+                  background: '#f1f5f9'
+                }}>
+                  <h3 style={{ margin: 0, color: '#0f172a' }}>Productos</h3>
+                </div>
+                <div style={{ padding: '1rem' }}>
+                  {cartItems.map(item => (
+                    <CartItem key={item.id} item={item} />
+                  ))}
+                </div>
               </div>
-              <div style={{ padding: '1rem' }}>
-                {cartItems.map(item => (
-                  <CartItem key={item.id} item={item} />
-                ))}
+
+              <div style={{ marginTop: '20px' }}>
+                 <CalculadoraEnvio 
+                   subtotal={total} 
+                   setEnvioValido={setEnvioValido} 
+                   setTotalConEnvio={setTotalConEnvio} 
+                 />
               </div>
             </div>
 
@@ -101,9 +136,9 @@ export default function Carrito() {
                     marginBottom: '0.5rem',
                     fontSize: '0.95rem'
                   }}>
-                    <span style={{ color: '#64748b' }}>Envío:</span>
-                    <span style={{ color: '#0f172a', fontWeight: '600' }}>
-                      Gratis
+                    <span style={{ color: '#64748b' }}>Entrega:</span>
+                    <span style={{ color: envioValido ? '#10b981' : '#dc2626', fontWeight: '600' }}>
+                      {envioValido ? 'Calculado' : 'Pendiente'}
                     </span>
                   </div>
                 </div>
@@ -125,30 +160,50 @@ export default function Carrito() {
                       color: '#f97316',
                       fontSize: '1.3rem'
                     }}>
-                      ${total.toLocaleString()}
+                      ${totalConEnvio.toLocaleString()}
                     </span>
                   </div>
                 </div>
 
-                <Link to="/checkout" style={{
-                  display: 'inline-block',
-                  width: '100%',
-                  background: '#f97316',
-                  color: 'white',
-                  textAlign: 'center',
-                  textDecoration: 'none',
-                  padding: '14px',
-                  borderRadius: '8px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  marginBottom: '0.5rem',
-                  transition: 'background 0.2s',
-                  fontSize: '1rem'
-                }}
-                onMouseEnter={(e) => e.target.style.background = '#ea580c'}
-                onMouseLeave={(e) => e.target.style.background = '#f97316'}>
+                {/* Cartel de error integrado */}
+                {errorCheckout && (
+                  <div style={{
+                    background: '#fee2e2',
+                    color: '#dc2626',
+                    padding: '10px',
+                    borderRadius: '6px',
+                    fontSize: '0.85rem',
+                    marginBottom: '15px',
+                    border: '1px solid #fca5a5',
+                    textAlign: 'center',
+                    fontWeight: '500'
+                  }}>
+                    {errorCheckout}
+                  </div>
+                )}
+
+                <button 
+                  onClick={handleCheckout} 
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    background: '#f97316',
+                    color: 'white',
+                    textAlign: 'center',
+                    border: 'none',
+                    padding: '14px',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    marginBottom: '0.5rem',
+                    transition: 'background 0.2s',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = '#ea580c'}
+                  onMouseLeave={(e) => e.target.style.background = '#f97316'}>
                   Ir a Checkout
-                </Link>
+                </button>
 
                 <button onClick={clearCart} style={{
                   width: '100%',
@@ -183,6 +238,7 @@ export default function Carrito() {
                 </Link>
               </div>
             </div>
+            
           </div>
         )}
       </div>
