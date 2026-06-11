@@ -44,7 +44,7 @@ export default function Footer() {
               +54 9 261 555-0192
             </li>
             <li>
-              contacto@tiendadeportiva.com
+              sportmax84@gmail.com
             </li>
           </ul>
         </div>

@@ -1,16 +1,27 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { useAuth } from '../context/AuthContext'; // <-- Control de sesión
 import SuccessToast from './SuccessToast';
 
 export default function ProductCard({ producto }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { user } = useAuth(); // <-- Traemos el estado del usuario
+  const navigate = useNavigate(); // <-- Para redirigir al login
   const isFav = isInWishlist(producto.id);
   const [showToast, setShowToast] = useState(false);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    
+    // BLOQUEO: Si no hay usuario, va al login
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     addToCart(producto);
     setShowToast(true);
   };
@@ -18,6 +29,13 @@ export default function ProductCard({ producto }) {
   const handleToggleWishlist = (event) => {
     event.preventDefault();
     event.stopPropagation();
+
+    // BLOQUEO: Si no hay usuario, va al login
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     toggleWishlist(producto);
   };
 
@@ -30,7 +48,10 @@ export default function ProductCard({ producto }) {
         boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
         transition: 'transform 0.3s, box-shadow 0.3s',
         cursor: 'pointer',
-        position: 'relative'
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%' 
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
@@ -41,27 +62,36 @@ export default function ProductCard({ producto }) {
         e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.07)';
       }}
     >
+      {/* Botón Flotante de Corazón */}
       <button
         onClick={handleToggleWishlist}
         style={{
           position: 'absolute',
           top: '10px',
           right: '10px',
-          background: 'transparent',
+          background: 'white',
+          borderRadius: '50%',
+          width: '32px',
+          height: '32px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           border: 'none',
           cursor: 'pointer',
-          fontSize: '1.4rem',
+          fontSize: '1.2rem',
           zIndex: 10,
           padding: '0',
           color: isFav ? '#ef4444' : '#94a3b8',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
           transition: 'transform 0.2s ease-in-out'
         }}
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
         {isFav ? '♥' : '♡'}
       </button>
 
+      {/* Imagen y Badge */}
       <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
         {producto.destacado && (
           <span style={{
@@ -70,111 +100,108 @@ export default function ProductCard({ producto }) {
             left: '10px',
             background: '#f97316',
             color: 'white',
-            padding: '6px 10px',
-            borderRadius: '999px',
-            fontSize: '0.75rem',
+            padding: '4px 8px',
+            borderRadius: '8px',
+            fontSize: '0.7rem',
             fontWeight: '700',
             zIndex: 5
           }}>
             Destacado
           </span>
         )}
-        <img
-          src={producto.imagen}
-          alt={producto.nombre}
-          onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/500x400?text=Imagen+no+disponible'; }}
-          style={{
-            width: '100%',
-            height: '200px',
-            objectFit: 'cover',
-            background: '#e2e8f0'
-          }}
-        />
+        <div style={{ width: '100%', height: '220px', background: '#f1f5f9' }}>
+          <img
+            src={producto.imagen}
+            alt={producto.nombre}
+            onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/500x400?text=Sin+Imagen'; }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+        </div>
       </Link>
 
-      <div style={{ padding: '1rem' }}>
-        <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
-          <h3 style={{
-            margin: '0 0 0.5rem 0',
-            fontSize: '1rem',
-            color: '#0f172a',
-            height: '2.8rem',
+      {/* Contenedor Inferior */}
+      <div style={{ 
+        padding: '1rem', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        flexGrow: 1 
+      }}>
+        
+        {/* Título y Descripción */}
+        <div style={{ flexGrow: 1, textAlign: 'center' }}>
+          <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
+            <h3 style={{
+              margin: '0 0 0.5rem 0',
+              fontSize: '1.05rem',
+              color: '#0f172a',
+              lineHeight: '1.3',
+              height: '2.6em', 
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical'
+            }}>
+              {producto.nombre}
+            </h3>
+          </Link>
+
+          <p style={{
+            margin: '0 0 1rem 0',
+            fontSize: '0.85rem',
+            color: '#64748b',
+            lineHeight: '1.4',
+            height: '2.8em', 
             overflow: 'hidden',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical'
           }}>
-            {producto.nombre}
-          </h3>
-        </Link>
-
-        <p style={{
-          margin: '0.5rem 0',
-          fontSize: '0.85rem',
-          color: '#64748b',
-          height: '2.4rem',
-          overflow: 'hidden',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical'
-        }}>
-          {producto.descripcion}
-        </p>
-
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginTop: '1rem',
-          gap: '0.75rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <span style={{
-            fontSize: '1.3rem',
-            fontWeight: '700',
-            color: '#f97316'
-          }}>
-            ${producto.precio.toLocaleString()}
-          </span>
-          {producto.oferta && producto.precioAnterior && (
-            <span style={{
-              fontSize: '0.85rem',
-              color: '#64748b',
-              textDecoration: 'line-through'
-            }}>
-              ${producto.precioAnterior.toLocaleString()}
-            </span>
-          )}
+            {producto.descripcion}
+          </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {/* Precio y Botones */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column', 
+          alignItems: 'center',    
+          gap: '0.75rem'           
+        }}>
+          
+          {/* Precios */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '1.35rem', fontWeight: '900', color: '#ea580c' }}>
+              ${producto.precio.toLocaleString()}
+            </span>
+            {producto.oferta && producto.precioAnterior && (
+              <span style={{ fontSize: '0.85rem', color: '#94a3b8', textDecoration: 'line-through' }}>
+                ${producto.precioAnterior.toLocaleString()}
+              </span>
+            )}
+          </div>
+
+          {/* Botones */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', width: '100%' }}>
             <button
               onClick={handleToggleWishlist}
               style={{
-                background: isFav ? '#f97316' : 'transparent',
+                background: isFav ? '#f97316' : 'white',
                 color: isFav ? 'white' : '#0f172a',
-                border: isFav ? 'none' : '1px solid #cbd5e1',
-                padding: '8px 12px',
+                border: isFav ? '1px solid #f97316' : '1px solid #cbd5e1',
+                padding: '8px 14px',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 fontWeight: '600',
-                fontSize: '0.9rem',
-                transition: 'background 0.2s, color 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (!isFav) {
-                  e.target.style.borderColor = '#f97316';
-                  e.target.style.color = '#f97316';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isFav) {
-                  e.target.style.borderColor = '#cbd5e1';
-                  e.target.style.color = '#0f172a';
-                }
+                fontSize: '0.85rem',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
               }}
             >
-              {isFav ? 'En deseos' : 'Deseo'}
+              {isFav ? 'Deseado' : 'Deseo'}
             </button>
 
             {producto.stock > 0 ? (
@@ -183,13 +210,14 @@ export default function ProductCard({ producto }) {
                 style={{
                   background: '#f97316',
                   color: 'white',
-                  border: 'none',
+                  border: '1px solid #f97316',
                   padding: '8px 16px',
-                  borderRadius: '6px',
+                  borderRadius: '8px',
                   cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '0.9rem',
-                  transition: 'background 0.2s'
+                  fontWeight: '700',
+                  fontSize: '0.85rem',
+                  transition: 'background 0.2s',
+                  whiteSpace: 'nowrap'
                 }}
                 onMouseEnter={(e) => e.target.style.background = '#ea580c'}
                 onMouseLeave={(e) => e.target.style.background = '#f97316'}
@@ -200,10 +228,11 @@ export default function ProductCard({ producto }) {
               <span style={{
                 background: '#fee2e2',
                 color: '#dc2626',
-                padding: '8px 12px',
-                borderRadius: '6px',
+                padding: '8px 14px',
+                borderRadius: '8px',
                 fontSize: '0.85rem',
-                fontWeight: '600'
+                fontWeight: '700',
+                whiteSpace: 'nowrap'
               }}>
                 Sin stock
               </span>
@@ -211,14 +240,13 @@ export default function ProductCard({ producto }) {
           </div>
         </div>
 
-        <p style={{
-          margin: '0.5rem 0 0 0',
-          fontSize: '0.8rem',
-          color: '#94a3b8'
-        }}>
+        <div style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
           Stock: {producto.stock}
-        </p>
+        </div>
+
       </div>
+      
+      {showToast && <SuccessToast onClose={() => setShowToast(false)} />}
     </div>
   );
 }

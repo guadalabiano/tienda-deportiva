@@ -85,7 +85,7 @@ export default function Home() {
                 <span style={{ fontSize: '0.9rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#fbbf24', marginBottom: '1rem' }}>
                   Oferta del día
                 </span>
-                <h2 style={{ margin: 0, fontSize: '2.4rem', lineHeight: '1.1' }}>{productoOfertaDelDia.nombre}</h2>
+                <h2 style={{ margin: 0, fontSize: '2.4rem', lineHeight: '1.1', color: 'white' }}>{productoOfertaDelDia.nombre}</h2>
                 <p style={{ margin: '1rem 0', color: '#cbd5e1', maxWidth: '520px' }}>{productoOfertaDelDia.descripcion}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <span style={{ fontSize: '2rem', fontWeight: '900', color: '#f97316' }}>${productoOfertaDelDia.precio.toLocaleString()}</span>

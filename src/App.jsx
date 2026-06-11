@@ -17,14 +17,16 @@ import Footer from './pages/Footer'; // Asegurate de que el Footer esté en esta
 
 function NavBar() {
   const { user, logout } = useAuth();
-  const { getTotalItems } = useCart();
-  const { getWishlistCount } = useWishlist();
+  const { getTotalItems, clearCart } = useCart(); // <-- Agregamos clearCart
+  const { getWishlistCount, clearWishlist } = useWishlist(); // <-- Agregamos clearWishlist
   const { busqueda, setBusqueda } = useProducts();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    clearCart();        // 1. Vaciamos el carrito
+    clearWishlist();    // 2. Vaciamos la wishlist
+    logout();           // 3. Cerramos sesión
+    navigate('/');      // 4. Volvemos al inicio
   };
 
   return (
